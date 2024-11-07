@@ -27,13 +27,6 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
       ...this.t,
       title: "Title",
     };
-    this.registerLocalization({
-      context: this,
-      localesPath:
-        new URL("./locales/hax-search.ar.json", import.meta.url).href +
-        "/../",
-      locales: ["ar", "es", "hi", "zh"],
-    });
     this.siteUrl = "";
     this.overviewData = {};
     this.items = [];
