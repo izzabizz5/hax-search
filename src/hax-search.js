@@ -163,7 +163,7 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
         this.items = data.collection.items;
       }  
     } catch (error) {
-      this.errorMessage = error.message; // Handle the error
+      this.errorMessage = error.message; // Handle the error error
     } finally {
       this.loading = false;
     }
