@@ -1,21 +1,25 @@
+import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { LitElement, html, css } from "lit";
 
-export class HaxItems extends LitElement {
+export class HaxItems extends DDDSuper(LitElement) {
 
   constructor() {
     super();
     this.title = "";
     this.description = "";
-    this.updated = "";
+    this.updatedDate = "";
     this.slug = "";
     this.imageURL = "";
+    this.contentLink = "";
+    this.openSourceLink = "";
+    this.additionalInfo = "";
   }
 
   static get properties() {
     return {
         title: { type: String },
         description: { type: String },
-        updated: { type: String },
+        updatedDate: { type: String },
         slug: { type: String },
         imageURL: { type: String} ,
     };
@@ -25,53 +29,67 @@ export class HaxItems extends LitElement {
     return [super.styles,
     css`
       .card {
-        border: 1px solid var(--simple-colors-default-theme-grey-5);
-        border-radius: 6px;
-        padding: 10px;
-        background-color: var(--simple-colors-default-theme-grey-1);
-        color: var(--simple-colors-default-theme-accent-12);
-        text-align: left;
-        box-shadow: 0 4px 8px var(--simple-colors-default-theme-grey-6);
+        display: flex;
+        flex-direction: column;
+        border: var(--ddd-border-sm);
+        border-radius: var(--ddd-radius-md);
+        padding: var(--ddd-spacing-6);
+        background-color: var(--ddd-accent-3); 
+        color: var(--ddd-primary-4); 
+        box-shadow: var(--ddd-boxShadow-sm);
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-decoration: none;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--ddd-boxShadow-md);
+        text-decoration: none!important; 
       }
       .card h3 {
-        font-size: 1.1em;
-        margin: 0;
-        color: var(--simple-colors-default-theme-accent-8);
+        font-size: var(--ddd-font-size-s);
+        margin: 0 0 var(--ddd-spacing-2) 0;
+        color: var(--ddd-primary-4);
       }
       .card p {
-        font-size: 0.9em;
-        color: var(--simple-colors-default-theme-grey-9);
+        font-size: var(--ddd-font-size-3xs);
+        margin: var(--ddd-spacing-2) 0;
+        line-height: var(--ddd-lh-150);
+        color: var(--ddd-primary-5); 
+        text-decoration: none;
       }
       .card img {
-        width: 100%;
+        max-width: 100%;
         height: auto;
-        border-radius: 4px;
-        margin-bottom: 10px;
+        border-radius: var(--ddd-radius-sm);
+        margin-bottom: var(--ddd-spacing-4);
       }
       .card a {
-        color: var(--simple-colors-default-theme-blue-6);
+        color: var(--ddd-primary-8);
         text-decoration: none;
-        margin-right: 5px;
+        margin-right: var(--ddd-spacing-2);
+        text-decoration: none;
       }
-      .card a:hover {
-        color: var(--simple-colors-default-theme-blue-8);
-        text-decoration: underline;
+      .card a:hover,
+            a:focus {
+        color: var(--ddd-primary-8); 
+        text-decoration: none!important; 
       }
     `];
   }
 
   render() {
     return html`
-      <div class="item">
-        <h3>${this.title}</h3>
-        <img src="${this.imageUrl}" alt="Image for ${this.title}">
-        <p>${this.description}</p>
-        <p><strong>Last Updated:</strong> ${this.updated}</p>
-        <a href="${this.slug}" target="_blank">Open Content</a> |
-        <a href="${this.slug}/index.html" target="_blank">Open Source</a>
+        <div class="card">
+          <img src="${this.imageUrl}" alt="Image for ${this.title}">
+          <h3>${this.title}</h3>
+          <p><strong>Last Updated:</strong> ${this.updatedDate}</p>
+          <p>${this.description}</p>
+          <a href="${this.contentLink}">Content Link: </a>
+          <a href="${this.openSourceLink}" target="_blank">Open Source Link: </a>
       </div>
     `;
   }
+
   static get tag() {
     return "hax-items";
   }
