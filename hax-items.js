@@ -12,7 +12,8 @@ export class HaxItems extends DDDSuper(LitElement) {
     this.imageURL = "";
     this.contentLink = "";
     this.openSourceLink = "";
-    this.additionalInfo = "";
+    this.isPublished = "";
+    this.color = "";
   }
 
   static get properties() {
@@ -21,7 +22,11 @@ export class HaxItems extends DDDSuper(LitElement) {
         description: { type: String },
         updatedDate: { type: String },
         slug: { type: String },
-        imageURL: { type: String} ,
+        imageURL: { type: String },
+        contentLink: { type: String },
+        openSourceLink: { type: String },
+        isPublished: { type: String },
+        color: { type: String }
     };
   }
 
@@ -42,8 +47,7 @@ export class HaxItems extends DDDSuper(LitElement) {
       }
       .card:hover {
         transform: translateY(-5px);
-        box-shadow: var(--ddd-boxShadow-md);
-        text-decoration: none!important; 
+        box-shadow: var(--ddd-boxShadow-md); 
       }
       .card h3 {
         font-size: var(--ddd-font-size-s);
@@ -55,7 +59,6 @@ export class HaxItems extends DDDSuper(LitElement) {
         margin: var(--ddd-spacing-2) 0;
         line-height: var(--ddd-lh-150);
         color: var(--ddd-primary-5); 
-        text-decoration: none;
       }
       .card img {
         max-width: 100%;
@@ -65,27 +68,25 @@ export class HaxItems extends DDDSuper(LitElement) {
       }
       .card a {
         color: var(--ddd-primary-8);
-        text-decoration: none;
         margin-right: var(--ddd-spacing-2);
-        text-decoration: none;
       }
       .card a:hover,
             a:focus {
         color: var(--ddd-primary-8); 
-        text-decoration: none!important; 
       }
     `];
   }
 
   render() {
     return html`
-        <div class="card">
-          <img src="${this.imageUrl}" alt="Image for ${this.title}">
+        <div class="card" style="border: solid ${this.color} 2px">
+          <img src="${this.imageURL}" alt="Image for ${this.title}">
           <h3>${this.title}</h3>
           <p><strong>Last Updated:</strong> ${this.updatedDate}</p>
           <p>${this.description}</p>
-          <a href="${this.contentLink}">Content Link: </a>
-          <a href="${this.openSourceLink}" target="_blank">Open Source Link: </a>
+          <p>${this.isPublished}</p>
+          <a href="${this.contentLink}" target="_blank">Content Link --> </a>
+          <a href="${this.openSourceLink}" target="_blank">Open Source --> </a>
       </div>
     `;
   }

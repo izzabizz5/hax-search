@@ -5,6 +5,7 @@
 import { LitElement, html, css } from "lit";
 import { DDDSuper } from "@haxtheweb/d-d-d/d-d-d.js";
 import { I18NMixin } from "@haxtheweb/i18n-manager/lib/I18NMixin.js";
+import '@haxtheweb/simple-icon/simple-icon.js';
 import "./hax-items.js"; //Gyatta import the items 
 
 /**
@@ -21,14 +22,16 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
 
   constructor() {
     super();
-    this.siteURL = `https://haxtheweb.org/site.json`;
-    this.overviewData = {};
+    this.siteURL = "";
     this.items = [];
+    this.filteredItems = [];
     this.errorMessage = "";
     this.value = "";
+    this.color = "";
     this.loading = false;
-    this.logoImage = `https://haxtheweb.org/files/hax%20(1).png`;
-
+    this.logoImage = "";
+    this.webIcon = "";
+    this.site = "";
   }
 
   // Lit reactive properties
@@ -36,12 +39,15 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
     return {
       ...super.properties,
       siteURL: { type: String, attribute: 'json-url' },
-      baseURL: { type: String},
-      overviewData: { type: Object },
       items: { type: Array },
+      filteredItems: { type: Array },
       errorMessage: { type: String },
       value: { type: String, reflect: true },
+      color: { type: String},
       loading: { type: Boolean, reflect: true },
+      logoImage: { type: String },
+      webIcon: { type: String },
+      site: { type: String },
     };
   }
 
@@ -68,7 +74,6 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
         transform: translateY(-5px);
         box-shadow: var(--ddd-boxShadow-md);
       }
-
       .input-section {
         display: flex;
         justify-content: center;
@@ -77,7 +82,7 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
         margin-bottom: var(--ddd-spacing-10);
       }
 
-      input[type="url"] {
+      input {
         flex-grow: 1;
         padding: var(--ddd-spacing-4);
         border: var(--ddd-border-sm);
@@ -106,13 +111,14 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
         gap: var(--ddd-spacing-4);
         font-family: var(--ddd-font-navigation);
         border-radius: var(--ddd-radius-md);
-        padding: var(--ddd-spacing-6);
+        padding: var(--ddd-spacing-2);
         background-color: var(--ddd-accent-3);
         color: var(--ddd-primary-4);
         margin-bottom: var(--ddd-spacing-12);
       }
       .overview-title {
-        margin-bottom: var(--ddd-spacing-4);
+        display: inline-flex;
+        margin: var(--ddd-spacing-4);
       }
       .overview-content {
         display: flex;
@@ -124,8 +130,8 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
         flex-direction: column;
       }
       .overview img {
-        max-width: 120px;
-        max-height: 120px;
+        max-width: 250x;
+        max-height: 250px;
         border-radius: var(--ddd-radius-sm);
       }
       .card-container {
@@ -133,18 +139,31 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: var(--ddd-spacing-10);
       }
+      .card-container:hover a {
+        text-decoration:none!important;
+      }
+      #hax2022icon {
+        max-height: 100px;
+        max-width: 100px;
+        padding: var(--ddd-spacing-2);
+      }
       h2 {
-        margin: 0 0 var(--ddd-spacing-3) 0;
+        padding: var(--ddd-spacing-2);
         font-size: var(--ddd-font-size-m);
+        margin: 0;
       } 
       p {
-        margin: var(--ddd-spacing-3) 0;
+        margin: var(--ddd-spacing-) 0;
         font-size: var(--ddd-font-size-3xs);
         line-height: var(--ddd-lh-150);
       }
-      .error {
-        color: var(--ddd-primary-22);
-      }
+      .error-message {
+      color: var(--ddd-primary-22);
+      background-color: var(--ddd-accent-3);
+      padding: var(--ddd-spacing-4);
+      border-radius: var(--ddd-radius-sm);
+      margin-bottom: var(--ddd-spacing-4);
+    }
 
     `];
   }
@@ -152,47 +171,57 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
   render() {
     return html`
       <div class="input-section">
-        <input id="input" placeholder="https://haxtheweb.org/site.json" @input="${this.inputChanged}"/>
+        <input id="input" placeholder="https://haxtheweb.org/" @input="${this.inputChanged}"/>
         <button @click="${this.updateResults}">Analyze</button>
       </div>
 
-      <div class="overview" style="border-color:${this.overviewData.hexCode}">
-        ${this.title ? html`
-        <h2 class="overview-header">${this.title}</h2>
-        <div class="overview-content">
-          <img src="${this.logoImage}" alt="${this.title}">
-          <div class="overview-text">
-            <p><strong>Description:</strong> ${this.description}</p>
-            <p><strong>Theme: </strong>${this.haxTheme}</p>
-            <p><strong>Created:</strong> ${new Date(this.created * 1000).toLocaleDateString()}</p>
-            <p><strong>Last Updated:</strong> ${new Date(this.updatedDate * 1000).toLocaleDateString()}</p>
-          </div>
-        </div>
-        ` : html`<p>Loading overview data...</p>`}
-      </div>
+      ${this.errorMessage
+      ? html`<div class="error-message">${this.errorMessage}</div>`
+      : ''}
+
+      ${!this.errorMessage && this.title
+        ? html`
+            <div class="overview" style="border: solid ${this.color} 2px">
+              <div class="overview-title">
+                <simple-icon id="hax2022icon" src=${this.webIcon}></simple-icon>
+                <h2>${this.title}</h2>
+              </div>
+              <div class="overview-content">
+                <img src="${this.logoImage}" alt="${this.title}" />
+                <div class="overview-text">
+                  <p><strong>Description:</strong> ${this.description}</p>
+                  <p><strong>Theme: </strong>${this.haxTheme}</p>
+                  <p><strong>Created:</strong> ${new Date(this.created * 1000).toLocaleDateString()}</p>
+                  <p><strong>Last Updated:</strong> ${new Date(this.updatedDate * 1000).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          `
+        : ''}
     
-      <div class="card-container" style="border-color:${this.overviewData.hexCode}">
-          ${this.items.length > 0
-            ? this.items.map(item => html`
-            <a href = "${this.value}/${item.slug}" target="_blank">
-              <hax-items 
+      <div class="card-container">
+          ${this.filteredItems.length > 0
+            ? this.filteredItems.map(item => html`
+            <a href = "${item.contentLink}" target="_blank">
+              <hax-items
                 title="${item.title}"
-                image="${item.imageURL ? html`<img src="${item.imageURL}" alt="${item.title}" />` : ''}"
+                imageURL="${item.imageURL}"
                 description="${item.description}"
-                contentlink="${this.value}/${item.slug}" target="_blank"
-                openSourceLink="${this.value}/${item.location}" target="_blank"
+                contentLink="${item.contentLink}"
+                openSourceLink="${item.openSourceLink}"
                 updatedDate="${new Date(item.updatedDate * 1000).toLocaleDateString()}"
-                baseURL="${item.baseURL}"
+                color="${this.color}"
+                isPublished="${item.isPublished}"
                 >
               </hax-items>
             </a>
             `)
             : html`<p>No items found.</p>`}
-      </div>`
+      </div>`      
   }
 
   inputChanged(e) {
-    this.value = this.shadowRoot.querySelector('#input').value;
+    this.value = this.shadowRoot.querySelector('#input').value.trim();
     this.filterItems();
   }
 
@@ -210,21 +239,37 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
 
   updateResults() {
     this.loading = true;
+    this.clearData();
     this.errorMessage = ""; // Reset error before fetching
-    fetch(`https://haxtheweb.org/site.json`).then (d=> d.ok ? d.json(): {}).then(data => {
-      // Store the overview data
-      if (data) {
-        this.title = data.metadata.site.name;
-        this.logo = data.metadata.site.logoImage;
-        this.description =  data.description;
-        this.haxTheme = data.metadata.theme.name;
-        this.created = data.metadata.site.created;
-        this.updatedDate = data.metadata.site.updated;
-      }
-      else {
-        console.log(this.errorMessage)
-      }
-      
+  
+    this.siteURL = this.value.replace("site.json","");
+    if(!this.siteURL.endsWith("/")) {
+      this.siteURL += "/";
+    }
+
+    fetch(this.siteURL + "site.json")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        return response.json();
+      })
+      .then(data => {
+        // Store the overview data
+        if (data) {
+          this.title = data.metadata.site.name;
+          this.description = data.description;
+          this.haxTheme = data.metadata.theme.name;
+          this.color = data.metadata.theme.variables.hexCode;
+          this.created = data.metadata.site.created;
+          this.updatedDate = data.metadata.site.updated;
+          this.logoImage = this.siteURL + data.metadata.site.logo;
+          this.webIcon = data.metadata.theme.variables.icon
+        } else {
+          this.errorMessage = 'Invalid data format';
+        }
+
       // Map JSON data to component's items
       if (Array.isArray(data.items)) {
         this.items = data.items.map(item => ({
@@ -232,24 +277,44 @@ export class HaxSearch extends DDDSuper(I18NMixin(LitElement)) {
           description: item.description,
           slug: item.slug,
           updatedDate: item.metadata.updated,
-          contentLink: this.value + '/' + item.slug,
-          openSourceLink: this.value + '/' + item.location,
-          imageURL: item.metadata.files?.[0]?.fullUrl, // Use the first image if present
+          contentLink: this.siteURL + item.slug,
+          openSourceLink: this.siteURL + item.location,
+          imageURL: item.metadata.files ? this.siteURL + item.metadata.files[0].url : "https://haxtheweb.org/files/hax%20(1).png",
+          isPublished: item.metadata.published ? "Published" : "Not Published",
         }));
+        this.filteredItems = this.items;
       } else {
-        this.items = [];
+        this.errorMessage = 'No Items';
       }
     })
+    .catch(error => {
+      this.errorMessage = `Failed to load data: ${error.message}`;
+      this.clearData();
+    })
+    .finally(() => {
+      this.loading = false;
+    });
   }
       
+  clearData() {
+    this.title = "";
+    this.description = "";
+    this.haxTheme = "";
+    this.color = "";
+    this.created = null;
+    this.updatedDate = null;
+    this.logoImage = "";
+    this.filteredItems = [];
+    this.items = [];
+  }
+
   filterItems() {
-    if (this.value.trim() === "") {
-      this.filteredItems = this.items;
+    if (!this.value.startsWith(this.siteURL)) {
+      this.filteredItems = []
     } else {
-      const searchQuery = this.value.toLowerCase();
+      const searchQuery = this.value.replace(this.siteURL, "").toLowerCase();
       this.filteredItems = this.items.filter(item => 
-        item.title.toLowerCase().includes(searchQuery) ||
-        item.description.toLowerCase().includes(searchQuery)
+        item.slug.toLowerCase().includes(searchQuery)
       );
     }
   }
